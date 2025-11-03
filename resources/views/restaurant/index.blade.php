@@ -3,99 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <title>قائمة المطاعم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: "Tajawal", sans-serif;
-            background: #ffffff;
-            margin: 0;
-            padding: 0;
+        /* تعديل ألوان Tailwind حسب طلبك */
+        @layer utilities {
+            .bg-yellow-custom { background-color: #FFD966; }
+            .text-orange-custom { color: #FF7F50; }
+            .hover-bg-orange { background-color: #FF7F50; }
         }
-
-        /* ================== Header ================== */
-        .header {
-            width: 100%;
-            background: linear-gradient(to right, #ff7a00, #d98b00);
-            padding: 30px 0;
-            text-align: center;
-            color: white;
-            font-size: 35px;
-            font-weight: bold;
-            margin-bottom: 40px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-        }
-
-        /* ================== GRID ================== */
-        .container {
-            padding: 30px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
-            gap: 25px;
-        }
-
-        /* ================== Card ================== */
-        .card {
-            background: #fff9db;
-            border-radius: 14px;
-            border: 3px solid #ff7a00;
-            overflow: hidden;
-            transition: .25s;
-        }
-
-        .card:hover {
-            transform: scale(1.04);
-            box-shadow: 0px 0px 14px rgba(0,0,0,0.2);
-        }
-
-        .img-box img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-
-        .content {
-            padding: 20px;
-        }
-
-        .name {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ff7a00;
-        }
-
-        .desc {
-            margin-top: 10px;
-            color: #3c3c3c;
-            line-height: 1.6;
-            font-size: 15px;
-        }
-
     </style>
 </head>
-<body>
+<body class="bg-white font-Tajawal">
 
-<div class="header">
-    قائمة المطاعم
-</div>
+    <!-- Header -->
+    <header class="w-full bg-gradient-to-r from-orange-600 to-yellow-500 text-white text-center text-3xl font-bold py-8 shadow-md">
+        قائمة المطاعم
+    </header>
 
-<div class="container">
-    <div class="grid">
-        @foreach($restaurants as $restaurant)
-            <div class="card">
+    <!-- Container -->
+    <main class="p-8 max-w-7xl mx-auto">
+        <div class="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            @foreach($restaurants as $restaurant)
+            <!-- Card -->
+            <div class="bg-yellow-custom border-2 border-orange-500 rounded-xl overflow-hidden shadow-lg transform transition-transform hover:scale-105">
                 @if($restaurant->image)
-                <div class="img-box">
-                    <img src="{{ asset($restaurant->image) }}" alt="صورة المطعم">
+                <div class="w-full h-48 overflow-hidden">
+                    <img src="{{ asset($restaurant->image) }}" alt="صورة المطعم" class="w-full h-full object-cover">
                 </div>
                 @endif
-                <div class="content">
-                    <div class="name">{{ $restaurant->name }}</div>
-                    <div class="desc">{{ $restaurant->description }}</div>
+                <div class="p-5">
+                    <h2 class="text-orange-custom font-bold text-xl">{{ $restaurant->name }}</h2>
+                    <p class="text-gray-800 mt-2 text-sm leading-relaxed">{{ $restaurant->description }}</p>
+                    <div class="mt-4">
+                        <a href="{{ route('restaurant.show', $restaurant->id) }}" class="inline-block bg-orange-500 hover-bg-orange text-white py-2 px-4 rounded-lg transition-colors">
+                            عرض التفاصيل
+                        </a>
+                    </div>
                 </div>
             </div>
-        @endforeach
-    </div>
-</div>
+            @endforeach
+        </div>
+
+        @role('admin')
+        <div class="mt-10 text-center">
+            <a href="{{ route('restaurant.create') }}" class="inline-block bg-orange-500 hover-bg-orange text-white py-3 px-6 rounded-xl font-semibold shadow-lg transition-colors">
+                إضافة مطعم
+            </a>
+        </div>
+        @endrole
+    </main>
 
 </body>
 </html>

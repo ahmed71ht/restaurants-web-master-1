@@ -36,14 +36,18 @@ class RestaurantsController extends Controller
             'location' => 'required|string'
         ]);
 
-        $data = $request->all();
+        $data = $request->only(['owner_id', 'name', 'description', 'location']);;
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $imageName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('restaurants'), $imageName);
-            $data['image'] = 'restaurants/' . $imageName;
+            $file->move(public_path('img'), $imageName);
+            $data['image'] = 'img/' . $imageName;
         }
+
+            if (!auth()->user() || auth()->user()->role !== 'admin') {
+                abort(403, 'غير مسموح لك إضافة مطعم');
+            }
 
         Restaurant::create($data);
 

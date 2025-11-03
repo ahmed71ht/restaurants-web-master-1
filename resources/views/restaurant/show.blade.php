@@ -120,12 +120,19 @@
     <a href="{{ route('restaurant.index') }}" class="back-btn">رجوع لقائمة المطاعم</a>
 
     @if($restaurant->image)
-        <img src="{{ $restaurant->image }}" alt="صورة المطعم" class="restaurant-img">
+        <img src="{{ asset('storage/'.$restaurant->image) }}" alt="صورة المطعم" class="restaurant-img">
     @endif
 
     @if($restaurant->location)
         <div class="location">الموقع: {{ $restaurant->location }}</div>
     @endif
+
+    @if($restaurant->foods->count() == 0)
+    <div style="text-align:center; font-size:18px; margin-top:30px; color:#888">
+        لا يوجد أطعمة مضافة لهذا المطعم حالياً
+        </div>
+    @endif
+
 
     <div class="grid">
         @foreach($restaurant->foods as $food)

@@ -1,9 +1,6 @@
 <x-app-layout>
-
     <div class="min-h-screen bg-gray-100 flex items-center justify-center py-10 px-4">
-
         <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6 sm:p-10 border border-orange-200">
-
             <h1 class="text-3xl font-extrabold mb-10 text-center text-orange-600">
                 إضافة مطعم جديد
             </h1>
@@ -14,6 +11,20 @@
                 </div>
             @endif
 
+            @if($errors->any())
+                <div class="mb-5">
+                    <ul class="space-y-1">
+                        @foreach($errors->all() as $error)
+                            <li class="flex items-start text-red-600">
+                                <span class="w-2 h-2 mt-2 mr-2 bg-red-600 rounded-full flex-shrink-0"> </span>
+                                <span> {{ $error }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+
             <form action="{{ route('restaurant.store') }}" method="POST" enctype="multipart/form-data" class="space-y-7">
                 @csrf
 
@@ -21,30 +32,36 @@
                     <label class="block font-semibold text-orange-700">صاحب المطعم (Owner)</label>
                     <select name="owner_id" class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0">
                         @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }} (ID {{ $user->id }})</option>
+                            <option value="{{ $user->id }}" {{ old('owner_id') == $user->id ? 'selected' : '' }}>
+                                {{ $user->name }} (ID {{ $user->id }})
+                            </option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="space-y-1">
                     <label class="block font-semibold text-orange-700">اسم المطعم</label>
-                    <input type="text" name="name" class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0" required>
+                    <input type="text" name="name" value="{{ old('name') }}"
+                           class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0" required>
                 </div>
 
                 <div class="space-y-1">
                     <label class="block font-semibold text-orange-700">رفع صورة واحدة</label>
-                    <input type="file" name="image" id="imageInput" class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0">
+                    <input type="file" name="image" id="imageInput" 
+                           class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0">
                     <img id="imagePreview" style="max-width:200px;margin-top:10px;display:none;" class="rounded-lg shadow" />
                 </div>
 
                 <div class="space-y-1">
                     <label class="block font-semibold text-orange-700">الوصف</label>
-                    <textarea name="description" rows="4" class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0"></textarea>
+                    <textarea name="description" rows="4"
+                              class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0">{{ old('description') }}</textarea>
                 </div>
 
                 <div class="space-y-1">
                     <label class="block font-semibold text-orange-700">الموقع</label>
-                    <input type="text" name="location" class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0">
+                    <input type="text" name="location" value="{{ old('location') }}"
+                           class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0">
                 </div>
 
                 <button type="submit"
@@ -52,11 +69,8 @@
                         from-orange-600 to-yellow-500 hover:opacity-90 transition-all shadow-lg">
                     حفظ المطعم
                 </button>
-
             </form>
-
         </div>
-
     </div>
 
     <script>
@@ -75,5 +89,4 @@
             }
         });
     </script>
-
 </x-app-layout>
