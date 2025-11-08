@@ -41,17 +41,31 @@ class RestaurantsController extends Controller
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $imageName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('img'), $imageName);
-            $data['image'] = 'img/' . $imageName;
+            $file->move(public_path('restaurantImg'), $imageName);
+            $data['image'] = 'restaurantImg/' . $imageName;
         }
-
-            if (!auth()->user() || auth()->user()->role !== 'admin') {
-                abort(403, 'غير مسموح لك إضافة مطعم');
-            }
 
         Restaurant::create($data);
 
         return redirect()->route('restaurant.index')->with('success', 'تم إضافة المطعم بنجاح');
     }
+
+    public function edit(Restaurant $restaurant)
+    {
+        return view('restaurant.edit', compact('restaurant'));
+    }
+
+    public function update(Request $request, Restaurant $restaurant)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string',
+        ]);
+
+        $restaurant->update($request->only('name', 'location'));
+
+        return redirect()->route('admin.dashboard')->with('success', 'تم تحديث المطعم بنجاح');
+    }
+
 
 }

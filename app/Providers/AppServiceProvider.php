@@ -21,13 +21,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // دعم دور واحد
         Blade::if('role', function ($role) {
             return auth()->check() && auth()->user()->role === $role;
         });
 
-        // دعم أكثر من دور بنفس الوقت
-        Blade::if('roles', function (array $roles) {
+        Blade::if('roles', function ($roles) {
+            $roles = is_array($roles) ? $roles : [$roles];
             return auth()->check() && in_array(auth()->user()->role, $roles);
         });
     }

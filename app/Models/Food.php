@@ -9,10 +9,9 @@ class Food extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'restaurant_id', 'name', 'description', 'price'
-    ];
     protected $table = 'foods';
+
+    protected $fillable = ['restaurant_id', 'name', 'description', 'price', 'image'];
 
     // المطعم الذي ينتمي إليه الطعام
     public function restaurant()
