@@ -1,9 +1,14 @@
-@extends('layouts.admin')
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة طعام جديد</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
 
-@section('title','أنشاء الأكلة')
-
-@section('content')
-    <div class="min-h-screen bg-gray-100 flex items-center justify-center py-10 px-4">
+    <div class="min-h-screen flex items-center justify-center py-10 px-4">
         <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6 sm:p-10 border border-orange-200">
             <h1 class="text-3xl font-extrabold mb-10 text-center text-orange-600">
                 إضافة طعام جديد
@@ -31,7 +36,6 @@
             <form action="{{ route('food.store', $restaurant->id) }}" method="POST" enctype="multipart/form-data" class="space-y-7">
                 @csrf
 
-                {{-- المطعم معروف من الرابط - لا نحتاج اختيار --}}
                 <input type="hidden" name="restaurant_id" value="{{ $restaurant->id }}">
 
                 <div class="space-y-1">
@@ -59,11 +63,10 @@
                         class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0" required>
                 </div>
 
-
                 <button type="submit"
                         class="w-full py-3 rounded-xl font-bold text-white text-lg bg-gradient-to-r
                         from-orange-600 to-yellow-500 hover:opacity-90 transition-all shadow-lg">
-                    <p style="color: black;">حفظ المطعم</p>
+                    <p style="color: black;">حفظ الأكلة</p>
                 </button>
             </form>
         </div>
@@ -85,4 +88,5 @@
             }
         });
     </script>
-@endsection
+</body>
+</html>

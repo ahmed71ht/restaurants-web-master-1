@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
+    public function index()
+    {
+        $restaurants = Restaurant::latest()->get();
+
+        return view('admin.restaurants.index', compact('restaurants'));
+    }
+
     public function dashboard()
     {
         $restaurantsCount = Restaurant::count();

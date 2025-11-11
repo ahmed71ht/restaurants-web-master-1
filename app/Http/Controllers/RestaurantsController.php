@@ -67,5 +67,16 @@ class RestaurantsController extends Controller
         return redirect()->route('admin.dashboard')->with('success', 'تم تحديث المطعم بنجاح');
     }
 
+    public function destroy(Restaurant $restaurant)
+    {
+        // إذا الصورة موجودة في DB
+        if ($restaurant->image && file_exists(public_path($restaurant->image))) {
+            unlink(public_path($restaurant->image));
+        }
+
+        $restaurant->delete();
+
+        return redirect()->route('restaurant.index')->with('success', 'تم حذف المطعم بنجاح');
+    }
 
 }

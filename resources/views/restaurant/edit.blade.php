@@ -29,7 +29,7 @@
         </div>
 
         <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg transition-all duration-200 shadow-md hover:shadow-lg">
-            <p style="color: black;">حفظ المطعم</p>
+            <p style="color: black;">حفظ المطعم
         </button>
 
     </form>

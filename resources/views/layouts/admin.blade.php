@@ -6,6 +6,7 @@
     <title>لوحة تحكم المشرف</title>
     <!-- Tailwind (إذا لم يكن مثبت عبر mix/vite) -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     @stack('head')
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
@@ -17,7 +18,7 @@
 
             <nav class="space-y-2">
                 <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded-md hover:bg-gray-100">الرئيسية</a>
-                <a href="{{ route('restaurant.index') }}" class="block px-3 py-2 rounded-md hover:bg-gray-100">المطاعم</a>
+                <a href="{{ route('admin.restaurants.index') }}" class="block px-3 py-2 rounded-md hover:bg-gray-100">المطاعم</a>
                 <a href="{{ route('restaurant.create') }}" class="block px-3 py-2 rounded-md hover:bg-gray-100">إضافة مطعم</a>
                 <!-- أضف روابط إضافية هنا -->
             </nav>

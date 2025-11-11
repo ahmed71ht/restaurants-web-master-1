@@ -28,8 +28,9 @@ class Order extends Model
     // الأصناف الموجودة بالطلب
     public function foods()
     {
-        return $this->belongsToMany(Food::class, 'order_food')->withPivot('quantity')->withTimestamps();
+        return $this->belongsToMany(Food::class, 'order_food')->withPivot('quantity');
     }
+
 
     // التوصيل المرتبط بالطلب
     public function delivery()

@@ -94,40 +94,50 @@ class FoodController extends Controller
         return view('food.edit', compact('food'));
     }
 
-public function update(Request $request, Food $food)
-{
-    $request->validate([
-        'name' => 'required|string',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-    ]);
+    public function update(Request $request, Food $food)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
 
-    $data = $request->only(['name', 'description']);
+        $data = $request->only(['name', 'description']);
 
-    if ($request->hasFile('image')) {
+        if ($request->hasFile('image')) {
 
-        if ($food->image && file_exists(public_path($food->image))) {
-            unlink(public_path($food->image));
+            if ($food->image && file_exists(public_path($food->image))) {
+                unlink(public_path($food->image));
+            }
+
+            $file = $request->file('image');
+            $imageName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('foodImg'), $imageName);
+            $data['image'] = 'foodImg/' . $imageName;
         }
 
-        $file = $request->file('image');
-        $imageName = time() . '_' . $file->getClientOriginalName();
-        $file->move(public_path('foodImg'), $imageName);
-        $data['image'] = 'foodImg/' . $imageName;
+        $food->update($data);
+
+        return redirect()->route('admin.dashboard')->with('success', 'تم تحديث الأكلة بنجاح');
     }
-
-    $food->update($data);
-
-    return redirect()->route('admin.dashboard')->with('success', 'تم تحديث الأكلة بنجاح');
-}
-
-
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($restaurant_id, $food_id)
     {
-        //
+        $food = \App\Models\Food::where('id', $food_id)
+            ->where('restaurant_id', $restaurant_id)
+            ->firstOrFail();
+
+        // حذف الصورة إذا موجودة
+        if ($food->image && file_exists(public_path($food->image))) {
+            unlink(public_path($food->image));
+        }
+
+        $food->delete();
+
+        return redirect()->route('restaurant.index')->with('success', 'تم حذف الأكلة بنجاح');
     }
+
 }
