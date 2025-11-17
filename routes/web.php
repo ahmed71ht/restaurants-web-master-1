@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RestaurantsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\FoodController;
+use App\Http\Controllers\UserOrdersController;
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,8 +31,9 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('ownerOrAdmin')->group(function () {
         Route::get('/restaurant/{restaurant}/orders', [OrderController::class, 'orders'])->name('restaurant.orders');
-        Route::patch('/restaurant/{restaurant}/orders/{order}/accept', [OrderController::class, 'acceptOrder'])->name('restaurant.orders.accept');
-        Route::patch('/restaurant/{restaurant}/orders/{order}/reject', [OrderController::class, 'rejectOrder'])->name('restaurant.orders.reject');
+        Route::post('/restaurant/{restaurant}/orders/{order}/accept', [OrderController::class, 'acceptOrder'])->name('restaurant.orders.accept');
+        Route::post('/restaurant/{restaurant}/orders/{order}/reject', [OrderController::class, 'rejectOrder'])->name('restaurant.orders.reject');
+        Route::delete('/orders/{restaurant}/delete-rejected', [OrderController::class, 'deleteRejected'])->name('orders.deleteRejected');
 
         Route::delete('/restaurants/{restaurant}/food/{food}', [FoodController::class, 'destroy'])->name('food.destroy');
 
@@ -39,6 +42,12 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/foods/{food}/edit', [FoodController::class, 'edit'])->name('food.edit');
         Route::patch('/foods/{food}', [FoodController::class, 'update'])->name('food.update');
+    });
+
+    Route::middleware(['DeliveryOrAdmin'])->group(function () {
+        Route::get('/restaurant/{restaurant}/delivery', [DeliveryController::class, 'index'])->name('restaurant.delivery.index');
+        Route::post('/restaurant/{restaurant}/delivery/{order}', [DeliveryController::class, 'updateStatus'])->name('restaurant.delivery.updateStatus');
+        Route::delete('/delivery/{restaurant}/delete-delivered', [DeliveryController::class, 'deleteDelivered'])->name('delivery.deleteDelivered');
     });
 
 
@@ -59,12 +68,21 @@ Route::middleware('auth')->group(function () {
 
             Route::delete('/restaurants/{restaurant}', [RestaurantsController::class, 'destroy'])->name('restaurant.destroy');
 
+            Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+            Route::post('/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
+
         });
 
 
     Route::get('/restaurants/{restaurant}', [RestaurantsController::class, 'show'])->name('restaurant.show');
     Route::get('/food/buy/{food}', [FoodController::class, 'show'])->name('food.buy');
     Route::post('/food/buy/{food}', [FoodController::class, 'buyStore'])->name('food.buy.store');
+    Route::post('/cart/checkout', [FoodController::class, 'checkout'])->name('cart.checkout');
+
+    Route::get('/restaurant/{restaurant}/my-orders', [UserOrdersController::class, 'userOrders'])->name('restaurant.user.orders');
+    Route::get('/restaurant/{restaurant}/order/{order}/edit/food', [UserOrdersController::class, 'edit'])->name('restaurant.user.edit');
+    Route::post('/restaurant/{restaurant}/order/{order}/food', [UserOrdersController::class, 'update'])->name('orders.update');
+    Route::delete('/order/{order}', [UserOrdersController::class, 'delete'])->name('order.delete');
 
 });
 

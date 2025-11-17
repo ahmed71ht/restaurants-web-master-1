@@ -30,11 +30,21 @@ class OwnerOrAdmin
             $restaurant = Restaurant::find($restaurant);
         }
 
-        // التحقق من الصلاحيات
-        if ($user && $restaurant && ($user->role === 'admin' || $user->id === $restaurant->owner_id)) {
+        // 💥 الحل هنا: إذا ما في مطعم → فقط الادمن مسموح له
+        if (!$restaurant) {
+            if ($user && ($user->role === 'admin' || $user->id === $restaurant->owner_id)) {
+                return $next($request);
+            }
+
+            abort(403, 'غير مسموح لك بالدخول إلى هذا القسم');
+        }
+
+        // إذا في مطعم → نطبق التحقق العادي
+        if ($user && ($user->role === 'admin' || $user->id === $restaurant->owner_id)) {
             return $next($request);
         }
 
         abort(403, 'غير مسموح لك بالدخول إلى هذا القسم');
     }
+
 }

@@ -10,7 +10,13 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'customer_id', 'restaurant_id', 'status', 'total_price', 'location'
+        'customer_id',
+        'restaurant_id',
+        'status',
+        'delivery_status',
+        'total_price',
+        'location',
+        'phone',
     ];
 
     // الزبون
@@ -28,9 +34,9 @@ class Order extends Model
     // الأصناف الموجودة بالطلب
     public function foods()
     {
-        return $this->belongsToMany(Food::class, 'order_food')->withPivot('quantity');
+        return $this->belongsToMany(Food::class, 'order_food')
+                    ->withPivot('quantity', 'price');
     }
-
 
     // التوصيل المرتبط بالطلب
     public function delivery()

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Restaurant;
 use App\Models\Food;
+use \App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
@@ -15,6 +16,32 @@ class AdminController extends Controller
 
         return view('admin.restaurants.index', compact('restaurants'));
     }
+
+    public function users()
+    {
+        $users = User::all();
+        return view('admin.users', compact('users'));
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->role = $request->input('role');
+        $user->email_verified_at = $request->input('verified') == '1' ? now() : null;
+
+        if($request->filled('password')) {
+            $user->password = bcrypt($request->input('password'));
+        }
+
+        $user->save();
+
+        // نعيد Redirect للصفحة نفسها مع رسالة نجاح
+        return redirect()->route('admin.users')->with('success', 'تم حفظ التغييرات بنجاح!');
+    }
+
 
     public function dashboard()
     {

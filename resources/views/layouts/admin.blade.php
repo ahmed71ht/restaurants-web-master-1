@@ -20,6 +20,7 @@
                 <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded-md hover:bg-gray-100">الرئيسية</a>
                 <a href="{{ route('admin.restaurants.index') }}" class="block px-3 py-2 rounded-md hover:bg-gray-100">المطاعم</a>
                 <a href="{{ route('restaurant.create') }}" class="block px-3 py-2 rounded-md hover:bg-gray-100">إضافة مطعم</a>
+                <a href="{{ route('admin.users') }}" class="block px-3 py-2 rounded-md hover:bg-gray-100">تحكم بالمستخدمين</a>
                 <!-- أضف روابط إضافية هنا -->
             </nav>
         </aside>

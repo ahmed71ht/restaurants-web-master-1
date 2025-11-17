@@ -30,13 +30,14 @@ class RestaurantsController extends Controller
     {
         $request->validate([
             'owner_id' => 'required|exists:users,id',
+            'delivery_id' => 'required|exists:users,id',
             'name' => 'required|string',
             'description' => 'nullable|string',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'location' => 'required|string'
         ]);
 
-        $data = $request->only(['owner_id', 'name', 'description', 'location']);;
+        $data = $request->only(['owner_id', 'name', 'description', 'location', 'delivery_id']);;
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');

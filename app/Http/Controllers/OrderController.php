@@ -11,9 +11,10 @@ class OrderController extends Controller
     // عرض الطلبات لمطعم محدد
     public function orders(Restaurant $restaurant)
     {
-        // تحقق إذا المستخدم هو owner أو admin
-        if (!in_array(auth()->user()->role, ['owner', 'admin']) || (auth()->user()->role == 'owner' && auth()->id() !== $restaurant->owner_id)) {
-            abort(403);
+        $user = auth()->user();
+
+        if ($user->role !== 'admin' && $user->id !== $restaurant->owner_id) {
+            abort(403, 'غير مسموح لك بالدخول إلى هذا القسم');
         }
 
         $orders = $restaurant->orders()->with('foods', 'customer')->latest()->get();
@@ -21,27 +22,38 @@ class OrderController extends Controller
         return view('restaurant.orders', compact('orders', 'restaurant'));
     }
 
-
-
-    // قبول الطلب
     public function acceptOrder(Restaurant $restaurant, Order $order)
     {
-        if(auth()->id() != $restaurant->owner_id || $order->restaurant_id != $restaurant->id){
-            abort(403);
+        // تحقق الصلاحيات
+        if(auth()->user()->role !== 'admin' && auth()->id() != $restaurant->owner_id){
+            return redirect()->route('restaurant.orders', $restaurant->id)
+                            ->with('error', 'ليس لديك صلاحية للقيام بهذا الإجراء');
         }
 
         $order->update(['status' => 'accepted']);
-        return back()->with('success', 'تم قبول الطلب');
+
+        return redirect()->route('restaurant.orders', $restaurant->id)
+                        ->with('success', 'تم قبول الطلب');
     }
 
-    // رفض الطلب
     public function rejectOrder(Restaurant $restaurant, Order $order)
     {
-        if(auth()->id() != $restaurant->owner_id || $order->restaurant_id != $restaurant->id){
-            abort(403);
+        if(auth()->user()->role !== 'admin' && auth()->id() != $restaurant->owner_id){
+            return redirect()->route('restaurant.orders', $restaurant->id)
+                            ->with('error', 'ليس لديك صلاحية للقيام بهذا الإجراء');
         }
 
         $order->update(['status' => 'rejected']);
-        return back()->with('success', 'تم رفض الطلب');
+
+        return redirect()->route('restaurant.orders', $restaurant->id)
+                        ->with('success', 'تم رفض الطلب');
     }
+
+    public function deleteRejected()
+    {
+        Order::where('status', 'rejected')->delete();
+
+        return redirect()->back()->with('success', 'تم حذف كل الطلبات المرفوضة.');
+    }
+
 }
