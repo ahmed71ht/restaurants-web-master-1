@@ -34,10 +34,11 @@ class RestaurantsController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'phone' => 'required|string',
             'location' => 'required|string'
         ]);
 
-        $data = $request->only(['owner_id', 'name', 'description', 'location', 'delivery_id']);;
+        $data = $request->only(['owner_id', 'name', 'description', 'phone', 'location', 'delivery_id']);;
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');

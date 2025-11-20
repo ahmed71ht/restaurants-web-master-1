@@ -43,6 +43,14 @@
                 </select>
             </div>
 
+            <!-- Phone -->
+            <div class="space-y-1">
+                <label class="block font-semibold text-orange-700">رقم المطعم</label>
+                <input type="text" name="phone" value="{{ old('phone') }}"
+                       class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0" required>
+
+            </div>
+
             <!-- Delivery -->
             <div class="space-y-1">
                 <label class="block font-semibold text-orange-700">مسؤول التوصيل (Delivery)</label>

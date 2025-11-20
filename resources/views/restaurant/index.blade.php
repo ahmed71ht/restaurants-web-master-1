@@ -77,7 +77,6 @@
         </div>
         <br><br>
         @endrole
-        <a href="{{ route('restaurant.user.orders', $restaurant->id) }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-xl font-semibold shadow-lg btn-animate">طلباتي</a>
 
     </main>
 

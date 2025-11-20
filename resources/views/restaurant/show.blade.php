@@ -46,6 +46,7 @@
     <div class="header">
         <h1>{{ $restaurant->name }}</h1>
         <div class="subheader">{{ $restaurant->description }}</div>
+        <div class="subheader">{{ $restaurant->phone }}</div>
     </div>
 
     <div class="container">
@@ -60,7 +61,10 @@
             <div class="location">📍 الموقع: {{ $restaurant->location }}</div>
         @endif
 
+        <a href="{{ route('restaurant.user.orders', $restaurant->id) }}" class="btn">طلباتي</a>
+
         @if(auth()->check() && (auth()->id() === $restaurant->delivery_id || auth()->user()->role === 'admin'))
+            <br><br>
             <a href="{{ route('restaurant.delivery.index', $restaurant->id) }}" class="btn">طلبات المقبولة</a>
             <br><br>
         @endif
