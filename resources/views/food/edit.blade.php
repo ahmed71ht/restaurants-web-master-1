@@ -21,6 +21,14 @@
                                 focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
                 </div>
 
+                <div class="space-y-1">
+                    <label class="block font-semibold text-orange-700">سعر الأكلة</label>
+                    <input type="number" step="0.01" name="price" value="{{ $food->price }}"
+                        class="w-full border-2 border-orange-200 rounded-xl p-3 focus:border-orange-500 focus:ring-0">
+                </div>
+
+
+
                 <div>
                     <label class="block mb-2 font-medium text-gray-800">وصف الأكلة</label>
                     <input type="text" name="description" value="{{ $food->description }}"
@@ -46,3 +54,5 @@
         <div>
 </body>
 </html>
+
+@endsection

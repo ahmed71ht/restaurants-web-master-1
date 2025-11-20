@@ -90,10 +90,11 @@ class FoodController extends Controller
         $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
+            'price' => 'nullable|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $data = $request->only(['name', 'description']);
+        $data = $request->only(['price', 'name', 'description']);
 
         if ($request->hasFile('image')) {
             if ($food->image && file_exists(public_path($food->image))) {

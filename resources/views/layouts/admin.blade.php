@@ -33,7 +33,7 @@
                     <p class="text-sm text-gray-500">مرحباً، هنا تحكم كامل بالموقع والمطاعم.</p>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <a href="{{ url('/') }}" class="px-4 py-2 bg-gray-200 rounded">الذهاب للموقع</a>
+                    <a href="{{ route('restaurant.index') }}" class="px-4 py-2 bg-gray-200 rounded">الذهاب للموقع</a>
                     <form method="POST" action="{{ route('logout') }}">@csrf
                         <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded">تسجيل خروج</button>
                     </form>

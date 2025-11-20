@@ -101,6 +101,15 @@
                                 style="margin-top:14px;">
                                 شراء
                             </button>
+
+                            @if(auth()->check() && (auth()->id() === $restaurant->owner_id || auth()->user()->role === 'admin'))
+                                <a
+                                    href="{{ route('food.edit', $food->id) }}"
+                                    class="btn"
+                                    style="margin-top:14px;">
+                                    تعديل
+                                </a>
+                            @endif
                         </div>
                     </div>
                 @endforeach
