@@ -20,7 +20,7 @@
 <body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen p-6">
 
 <div class="max-w-5xl mx-auto mt-10">
-    <h1 class="text-3xl font-bold mb-8 text-gray-800">جميع الطلبات</h1>
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">طلباتك لمطعم {{ $restaurant->name }}</h1>
 
     @if(session('success'))
         <div class="mb-4 p-4 bg-green-100 text-green-700 rounded">

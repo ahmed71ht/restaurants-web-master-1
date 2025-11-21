@@ -11,7 +11,7 @@
         <h3 class="text-sm text-gray-500">عدد المطاعم</h3>
         <div class="mt-3 flex items-center justify-between">
             <span class="text-3xl font-bold">{{ $restaurantsCount }}</span>
-            <a href="{{ url('/admin/restaurants') }}" class="text-sm text-blue-600">إدارة</a>
+            <a href="{{ route('admin.restaurants.index') }}" class="text-sm text-blue-600">إدارة</a>
         </div>
     </div>
 
@@ -19,7 +19,6 @@
         <h3 class="text-sm text-gray-500">عدد الأطعمة</h3>
         <div class="mt-3 flex items-center justify-between">
             <span class="text-3xl font-bold">{{ $foodsCount }}</span>
-            <a href="{{ url('/admin/restaurants') }}" class="text-sm text-blue-600">عرض الأكل</a>
         </div>
     </div>
 
