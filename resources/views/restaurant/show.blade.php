@@ -52,6 +52,21 @@ body { font-family:"Tajawal",sans-serif; background:#f4f6fc; margin:0; color:#22
 .danger { background:#ef4444; color:#fff }
 .primary { background:#ff7a00; color:#fff }
 
+/* زر التعليقات */
+.comments-btn { padding: 10px 15px; background: #4c6ef5; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin: 0 20px 20px 20px; display: block; }
+
+/* مودال التعليقات */
+.modal { position: fixed; bottom: -100%; left: 0; width: 100%; height: 75%; background: #fff; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); transition: bottom 0.3s ease; z-index: 99999; }
+.modal.show { bottom: 0; }
+.modal-content { height: 100%; display: flex; flex-direction: column; padding: 15px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.close-btn { font-size: 25px; background: none; border: none; cursor: pointer; }
+.comments-list { flex: 1; overflow-y: auto; margin: 15px 0; }
+.comment-item { padding: 10px; border-bottom: 1px solid #f1f1f1; }
+.comment-item strong { color: #333; }
+.comment-form textarea { width: 100%; height: 70px; padding: 10px; resize: none; border: 1px solid #ddd; border-radius: 8px; }
+.send-btn { width: 100%; margin-top: 10px; padding: 12px; background: #4c6ef5; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+
 .empty-box { text-align:center; background:#fff; border-radius:20px; padding:50px; font-size:18px; color:#777; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
 
 @media (max-width:900px){
@@ -68,6 +83,12 @@ body { font-family:"Tajawal",sans-serif; background:#f4f6fc; margin:0; color:#22
 </div>
 
 <div class="container">
+    <div class="restaurant-header">
+        <img src="{{ asset($restaurant->image) }}" alt="{{ $restaurant->name }}">
+        <h1>{{ $restaurant->name }}</h1>
+        <p>{{ $restaurant->description }}</p>
+        <button id="openComments" class="comments-btn">التعليقات 💬</button>
+    </div>
     <a href="{{ route('restaurant.index') }}" class="btn secondary">← رجوع</a><br><br>
 
     @if($restaurant->image)
@@ -146,141 +167,177 @@ body { font-family:"Tajawal",sans-serif; background:#f4f6fc; margin:0; color:#22
     <div style="margin-top:10px; font-size:15px; color:#444">المجموع: <strong id="cartTotal">0</strong> ₺</div>
 </div>
 
-<script>
-const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-let cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
-let currentItem = null;
+    {{-- مودال التعليقات --}}
+    <div id="commentsModal" class="modal">
+        <div class="modal-content">
 
-function openBuyModal(food) {
-    console.log('فتح المودال:', food);
-    currentItem = {
-        id: food.id,
-        restaurant_id: food.restaurant_id,
-        name: food.name,
-        price: parseFloat(food.price),
-        image: food.image ? `{{ asset('') }}${food.image}` : ''
-    };
-    document.getElementById('modalName').innerText = food.name;
-    document.getElementById('modalPrice').innerText = parseFloat(food.price).toFixed(2);
-    document.getElementById('modalImage').src = currentItem.image;
-    document.getElementById('modalQuantity').value = 1;
-    document.getElementById('buyModal').style.display = 'flex';
-}
-
-function closeModal() { document.getElementById('buyModal').style.display = 'none'; currentItem = null; }
-
-function addToCart() {
-    if (!currentItem) return;
-    let qty = parseInt(document.getElementById('modalQuantity').value) || 1;
-
-    if (cart.length > 0 && cart[0].restaurant_id !== currentItem.restaurant_id) {
-        if (!confirm('السلة تحتوي على أصناف من مطعم آخر. هل تريد تفريغ السلة واضافة هذا المنتج؟')) {
-            closeModal();
-            return;
-        }
-        cart = [];
-    }
-
-    let idx = cart.findIndex(i => i.id === currentItem.id);
-    if (idx !== -1) { cart[idx].quantity += qty; }
-    else { cart.push({ ...currentItem, quantity: qty }); }
-
-    sessionStorage.setItem('cart', JSON.stringify(cart));
-    renderCart();
-    closeModal();
-}
-
-function renderCart() {
-    const box = document.getElementById('cartItems');
-    const count = document.getElementById('cartCount');
-    const totalEl = document.getElementById('cartTotal');
-    box.innerHTML = '';
-
-    if (cart.length === 0) { box.innerHTML = '<div style="padding:12px; color:#666">السلة فارغة</div>'; count.innerText = ''; totalEl.innerText = '0.00'; return; }
-
-    let total = 0;
-    cart.forEach(item => {
-        total += item.price * item.quantity;
-        box.innerHTML += `
-            <div class="cart-item">
-                <div style="display:flex; gap:10px; align-items:center">
-                    <img src="${item.image || ''}" style="width:52px; height:52px; object-fit:cover; border-radius:8px;">
-                    <div style="flex:1; text-align:right">
-                        <div style="font-weight:800">${item.name}</div>
-                        <div style="font-size:13px; color:#666">الكمية: ${item.quantity} • ${parseFloat(item.price).toFixed(2)} ₺</div>
-                    </div>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-top:8px">
-                    <div>
-                        <button onclick="decreaseQty(${item.id})" class="small">−</button>
-                        <button onclick="increaseQty(${item.id})" class="small">＋</button>
-                    </div>
-                    <button onclick="removeItem(${item.id})" class="small danger">حذف</button>
-                </div>
+            <div class="modal-header">
+                <h3>تعليقات المطعم</h3>
+                <button id="closeComments" class="close-btn">&times;</button>
             </div>
-        `;
-    });
 
-    count.innerText = `(${cart.length})`;
-    totalEl.innerText = total.toFixed(2);
-}
+            <div class="comments-list">
+                @foreach ($restaurant->comments as $comment)
+                    <div class="comment-item">
+                        <strong>{{ $comment->user->name }}</strong>
+                        <p>{{ $comment->comment }}</p>
+                    </div>
+                @endforeach
+            </div>
 
-function increaseQty(id) { const idx = cart.findIndex(i => i.id === id); if (idx !== -1) { cart[idx].quantity++; sessionStorage.setItem('cart', JSON.stringify(cart)); renderCart(); } }
-function decreaseQty(id) { const idx = cart.findIndex(i => i.id === id); if (idx !== -1) { cart[idx].quantity = Math.max(1, cart[idx].quantity - 1); sessionStorage.setItem('cart', JSON.stringify(cart)); renderCart(); } }
-function removeItem(id) { cart = cart.filter(i => i.id !== id); sessionStorage.setItem('cart', JSON.stringify(cart)); renderCart(); }
-function clearCart() { if (!confirm('تفريغ السلة؟')) return; cart = []; sessionStorage.removeItem('cart'); renderCart(); }
+            <form action="{{ route('restaurant.comments.store') }}" method="POST" class="comment-form">
+                @csrf
+                <input type="hidden" name="restaurant_id" value="{{ $restaurant->id }}">
+                <textarea name="comment" placeholder="أكتب تعليقك…" required></textarea>
+                <button class="send-btn">إرسال</button>
+            </form>
 
-async function confirmOrder() {
-    if (cart.length === 0) {
-        alert('السلة فارغة');
-        return;
+        </div>
+    </div>
+
+<script>
+        const modal = document.getElementById("commentsModal");
+        const openBtn = document.getElementById("openComments");
+        const closeBtn = document.getElementById("closeComments");
+
+        openBtn.onclick = () => modal.classList.add("show");
+        closeBtn.onclick = () => modal.classList.remove("show");
+        window.onclick = (e) => { if(e.target === modal) modal.classList.remove("show"); };
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    let cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
+    let currentItem = null;
+
+    function openBuyModal(food) {
+        console.log('فتح المودال:', food);
+        currentItem = {
+            id: food.id,
+            restaurant_id: food.restaurant_id,
+            name: food.name,
+            price: parseFloat(food.price),
+            image: food.image ? `{{ asset('') }}${food.image}` : ''
+        };
+        document.getElementById('modalName').innerText = food.name;
+        document.getElementById('modalPrice').innerText = parseFloat(food.price).toFixed(2);
+        document.getElementById('modalImage').src = currentItem.image;
+        document.getElementById('modalQuantity').value = 1;
+        document.getElementById('buyModal').style.display = 'flex';
     }
 
-    let phone = prompt('الرجاء إدخال رقم الهاتف للتواصل:');
-    if (!phone) {
-        alert('رقم الهاتف مطلوب');
-        return;
+    function closeModal() { document.getElementById('buyModal').style.display = 'none'; currentItem = null; }
+
+    function addToCart() {
+        if (!currentItem) return;
+        let qty = parseInt(document.getElementById('modalQuantity').value) || 1;
+
+        if (cart.length > 0 && cart[0].restaurant_id !== currentItem.restaurant_id) {
+            if (!confirm('السلة تحتوي على أصناف من مطعم آخر. هل تريد تفريغ السلة واضافة هذا المنتج؟')) {
+                closeModal();
+                return;
+            }
+            cart = [];
+        }
+
+        let idx = cart.findIndex(i => i.id === currentItem.id);
+        if (idx !== -1) { cart[idx].quantity += qty; }
+        else { cart.push({ ...currentItem, quantity: qty }); }
+
+        sessionStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+        closeModal();
     }
 
-    // تحقق من أن الرقم 11 رقم بالضبط
-    phone = phone.replace(/\D/g, ''); // إزالة أي حروف غير رقمية
-    if (phone.length !== 11) {
-        alert('رقم الهاتف يجب أن يكون 11 رقمًا بالضبط');
-        return;
-    }
+    function renderCart() {
+        const box = document.getElementById('cartItems');
+        const count = document.getElementById('cartCount');
+        const totalEl = document.getElementById('cartTotal');
+        box.innerHTML = '';
 
-    const location = prompt('مكان التوصيل (العنوان) (اختياري):', '') || '';
+        if (cart.length === 0) { box.innerHTML = '<div style="padding:12px; color:#666">السلة فارغة</div>'; count.innerText = ''; totalEl.innerText = '0.00'; return; }
 
-    try {
-        const res = await fetch("{{ route('cart.checkout') }}", {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'X-CSRF-TOKEN': csrfToken, 
-                'Accept': 'application/json' 
-            },
-            body: JSON.stringify({ items: cart, phone: phone, location: location })
+        let total = 0;
+        cart.forEach(item => {
+            total += item.price * item.quantity;
+            box.innerHTML += `
+                <div class="cart-item">
+                    <div style="display:flex; gap:10px; align-items:center">
+                        <img src="${item.image || ''}" style="width:52px; height:52px; object-fit:cover; border-radius:8px;">
+                        <div style="flex:1; text-align:right">
+                            <div style="font-weight:800">${item.name}</div>
+                            <div style="font-size:13px; color:#666">الكمية: ${item.quantity} • ${parseFloat(item.price).toFixed(2)} ₺</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:8px">
+                        <div>
+                            <button onclick="decreaseQty(${item.id})" class="small">−</button>
+                            <button onclick="increaseQty(${item.id})" class="small">＋</button>
+                        </div>
+                        <button onclick="removeItem(${item.id})" class="small danger">حذف</button>
+                    </div>
+                </div>
+            `;
         });
 
-        if (!res.ok) {
-            const err = await res.json().catch(()=>null);
-            alert('حدث خطأ أثناء إرسال الطلب: ' + (err?.message || res.statusText));
+        count.innerText = `(${cart.length})`;
+        totalEl.innerText = total.toFixed(2);
+    }
+
+    function increaseQty(id) { const idx = cart.findIndex(i => i.id === id); if (idx !== -1) { cart[idx].quantity++; sessionStorage.setItem('cart', JSON.stringify(cart)); renderCart(); } }
+    function decreaseQty(id) { const idx = cart.findIndex(i => i.id === id); if (idx !== -1) { cart[idx].quantity = Math.max(1, cart[idx].quantity - 1); sessionStorage.setItem('cart', JSON.stringify(cart)); renderCart(); } }
+    function removeItem(id) { cart = cart.filter(i => i.id !== id); sessionStorage.setItem('cart', JSON.stringify(cart)); renderCart(); }
+    function clearCart() { if (!confirm('تفريغ السلة؟')) return; cart = []; sessionStorage.removeItem('cart'); renderCart(); }
+
+    async function confirmOrder() {
+        if (cart.length === 0) {
+            alert('السلة فارغة');
             return;
         }
 
-        const data = await res.json();
-        alert('تم تأكيد الطلب! رقم الطلب: ' + (data.order_id ?? '—'));
-        cart = [];
-        sessionStorage.removeItem('cart');
-        renderCart();
-        if (data.redirect) window.location.href = data.redirect;
-    } catch (e) {
-        alert('خطأ بالشبكة: ' + e.message);
+        let phone = prompt('الرجاء إدخال رقم الهاتف للتواصل:');
+        if (!phone) {
+            alert('رقم الهاتف مطلوب');
+            return;
+        }
+
+        // تحقق من أن الرقم 11 رقم بالضبط
+        phone = phone.replace(/\D/g, ''); // إزالة أي حروف غير رقمية
+        if (phone.length !== 11) {
+            alert('رقم الهاتف يجب أن يكون 11 رقمًا بالضبط');
+            return;
+        }
+
+        const location = prompt('مكان التوصيل (العنوان) (اختياري):', '') || '';
+
+        try {
+            const res = await fetch("{{ route('cart.checkout') }}", {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-CSRF-TOKEN': csrfToken, 
+                    'Accept': 'application/json' 
+                },
+                body: JSON.stringify({ items: cart, phone: phone, location: location })
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(()=>null);
+                alert('حدث خطأ أثناء إرسال الطلب: ' + (err?.message || res.statusText));
+                return;
+            }
+
+            const data = await res.json();
+            alert('تم تأكيد الطلب! رقم الطلب: ' + (data.order_id ?? '—'));
+            cart = [];
+            sessionStorage.removeItem('cart');
+            renderCart();
+            if (data.redirect) window.location.href = data.redirect;
+        } catch (e) {
+            alert('خطأ بالشبكة: ' + e.message);
+        }
     }
-}
 
 
-renderCart();
+    renderCart();
 </script>
 
 </body>

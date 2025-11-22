@@ -24,4 +24,10 @@ class Food extends Model
     {
         return $this->belongsToMany(Order::class, 'order_food')->withPivot('quantity')->withTimestamps();
     }
+
+    public function comments()
+    {
+        return $this->hasMany(FoodComment::class);
+    }
+
 }

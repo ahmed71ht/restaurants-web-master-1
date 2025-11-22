@@ -109,7 +109,7 @@ class FoodController extends Controller
 
         $food->update($data);
 
-        return redirect()->route('admin.dashboard')->with('success', 'تم تحديث الأكلة بنجاح');
+        return redirect()->route('restaurant.show', $food->restaurant_id)->with('success', 'تم تحديث الأكلة بنجاح');
     }
 
     public function destroy($restaurant_id, $food_id)

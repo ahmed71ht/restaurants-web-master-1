@@ -7,6 +7,7 @@ use App\Http\Controllers\FoodController;
 use App\Http\Controllers\UserOrdersController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\RestaurantCommentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -83,6 +84,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/restaurant/{restaurant}/order/{order}/edit/food', [UserOrdersController::class, 'edit'])->name('restaurant.user.edit');
     Route::post('/restaurant/{restaurant}/order/{order}/food', [UserOrdersController::class, 'update'])->name('orders.update');
     Route::delete('/order/{order}', [UserOrdersController::class, 'delete'])->name('order.delete');
+
+    Route::post('/restaurant-comment', [RestaurantCommentController::class, 'store'])->name('restaurant.comments.store');
 
 });
 
