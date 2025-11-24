@@ -17,4 +17,10 @@ class RestaurantComment extends Model
     {
         return $this->belongsTo(Restaurant::class);
     }
+
+    public function isRestaurantOwner()
+    {
+        return $this->restaurant->owner_id === $this->user_id;
+    }
+
 }

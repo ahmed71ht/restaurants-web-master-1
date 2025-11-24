@@ -23,4 +23,40 @@ class RestaurantCommentController extends Controller
         return back()->with('success', 'تم إضافة التعليق بنجاح');
     }
 
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'comment' => 'required|min:3',
+        ]);
+
+        $comment = RestaurantComment::findOrFail($id);
+
+        if ($comment->user_id !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => 'غير مسموح'], 403);
+        }
+
+        $comment->update([
+            'comment' => $request->comment
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroy($id)
+    {
+        $comment = RestaurantComment::findOrFail($id);
+        $restaurantOwnerId = $comment->restaurant->owner_id;
+        $user = auth()->user();
+
+        // السماح للكاتب الأصلي أو admin أو صاحب المطعم بالحذف
+        if ($comment->user_id !== $user->id && $user->role !== 'admin' && $user->id !== $restaurantOwnerId) {
+            return back()->with('error', 'غير مسموح بحذف التعليق');
+        }
+
+        $comment->delete();
+
+        return back()->with('success', 'تم حذف التعليق');
+    }
+
 }

@@ -86,6 +86,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/order/{order}', [UserOrdersController::class, 'delete'])->name('order.delete');
 
     Route::post('/restaurant-comment', [RestaurantCommentController::class, 'store'])->name('restaurant.comments.store');
+    Route::post('/comments', [RestaurantCommentController::class, 'store'])->name('comments.store');
+    Route::post('/comments/{id}/update', [RestaurantCommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{id}/delete', [RestaurantCommentController::class, 'destroy'])->name('comments.delete');
 
 });
 

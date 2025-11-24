@@ -67,7 +67,7 @@ class FoodController extends Controller
             'food_id' => $food->id,
             'quantity' => $quantity,
             'total_price' => $total,
-            'location' => $request->location,
+            'location' => $request->location ?? 'الموقع غير محدد',
             'phone' => $request->phone,
             'status' => 'pending',
         ]);
@@ -179,7 +179,7 @@ class FoodController extends Controller
                 'total_price' => $total,
                 'status' => 'pending',
                 'phone' => $payload['phone'] ?? null,
-                'location' => $payload['location'] ?? null,
+                'location' => $payload['location'] ?? 'الموقع غير محدد',
             ]);
 
             // لاحظ: يجب أن تكون علاقة many-to-many بين orders و foods مع جدول محوري (order_food) فيه عمود quantity
