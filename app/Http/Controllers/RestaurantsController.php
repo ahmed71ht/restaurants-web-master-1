@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Restaurant;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -80,5 +81,46 @@ class RestaurantsController extends Controller
 
         return redirect()->route('restaurant.index')->with('success', 'تم حذف المطعم بنجاح');
     }
+
+    public function topRestaurants()
+    {
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+
+        // جمع بيانات التعليقات
+        $comments = DB::table('restaurant_comments')
+            ->select('restaurant_id',
+                    DB::raw('AVG(rating) as avg_rating'),
+                    DB::raw('COUNT(*) as total_comments'))
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->groupBy('restaurant_id');
+
+        // جمع بيانات الطلبات
+        $orders = DB::table('orders')
+            ->select('restaurant_id',
+                    DB::raw('COUNT(*) as total_orders'))
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->groupBy('restaurant_id');
+
+        // دمج البيانات وحساب النقاط
+        $topRestaurants = DB::table('restaurants')
+            ->leftJoinSub($comments, 'c', 'restaurants.id', 'c.restaurant_id')
+            ->leftJoinSub($orders, 'o', 'restaurants.id', 'o.restaurant_id')
+            ->select('restaurants.*',
+                    DB::raw('
+                        (COALESCE(c.avg_rating,0)*0.5 + 
+                        COALESCE(o.total_orders,0)*0.3 + 
+                        COALESCE(c.total_comments,0)*0.2) as score,
+                        COALESCE(c.avg_rating,0) as avg_rating,
+                        COALESCE(o.total_orders,0) as total_orders,
+                        COALESCE(c.total_comments,0) as total_comments
+                    '))
+            ->orderByDesc('score')
+            ->limit(10)
+            ->get();
+
+        return view('restaurant.top', compact('topRestaurants'));
+    }
+
 
 }

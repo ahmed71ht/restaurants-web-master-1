@@ -9,6 +9,7 @@ use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RestaurantCommentController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CommentReplyController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -79,6 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/food/buy/{food}', [FoodController::class, 'show'])->name('food.buy');
     Route::post('/food/buy/{food}', [FoodController::class, 'buyStore'])->name('food.buy.store');
     Route::post('/cart/checkout', [FoodController::class, 'checkout'])->name('cart.checkout');
+    Route::get('/top-restaurants', [RestaurantsController::class, 'topRestaurants'])->name('restaurant.top');
 
     Route::get('/restaurant/{restaurant}/my-orders', [UserOrdersController::class, 'userOrders'])->name('restaurant.user.orders');
     Route::get('/restaurant/{restaurant}/order/{order}/edit/food', [UserOrdersController::class, 'edit'])->name('restaurant.user.edit');
@@ -89,6 +91,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/comments', [RestaurantCommentController::class, 'store'])->name('comments.store');
     Route::post('/comments/{id}/update', [RestaurantCommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{id}/delete', [RestaurantCommentController::class, 'destroy'])->name('comments.delete');
+
+    Route::post('/comments/{commentId}/reply', [CommentReplyController::class, 'store'])->name('comments.reply');
+    Route::get('/replies/{id}/edit', [CommentReplyController::class, 'edit'])->name('replies.edit');
+    Route::put('/replies/{id}', [CommentReplyController::class, 'update'])->name('replies.update');
+    Route::delete('/replies/{id}', [CommentReplyController::class, 'destroy'])->name('replies.destroy');
 
 });
 

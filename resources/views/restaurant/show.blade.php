@@ -13,8 +13,6 @@ body { font-family:"Tajawal",sans-serif; background:#f4f6fc; margin:0; color:#22
 .header h1 { font-size:48px; margin:0; font-weight:900; letter-spacing:1px; }
 .subheader { margin-top:12px; font-size:20px; opacity:0.95; }
 
-/* ... باقي ستايلات القديم ... */
-
 /* زر التعليقات */
 .comments-btn { padding: 10px 15px; background: #ff9800; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin: 0 20px 20px 20px; display: block; }
 
@@ -173,44 +171,172 @@ body { font-family:"Tajawal",sans-serif; background:#f4f6fc; margin:0; color:#22
 <!-- Comments Modal الجديد -->
 <div id="commentsModal" class="modal comments-modal">
     <div class="modal-content">
+
+        <!-- العنوان والإغلاق -->
         <div class="modal-header">
             <h3>تعليقات المطعم</h3>
             <button id="closeComments" class="close-btn">&times;</button>
         </div>
+
+        <!-- قائمة التعليقات -->
         <div class="comments-list">
             @foreach ($restaurant->comments as $comment)
-            <div class="comment-item">
-                <strong>
+            <div class="comment-item" style="background:#fafafa; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #eee;">
+
+                <strong style="font-size:15px;">
                     {{ $comment->user->name }}
+
                     @if($comment->isRestaurantOwner())
-                        <span style="background:#ff9800; color:#fff; padding:2px 6px; border-radius:6px; font-size:12px;">صاحب المطعم</span>
+                        <span style="
+                            background:#ff9800;
+                            color:#fff;
+                            padding:2px 6px;
+                            border-radius:6px;
+                            font-size:12px;
+                            margin-right:6px;">
+                            صاحب المطعم
+                        </span>
                     @endif
                 </strong>
-                <p>{{ $comment->comment }}</p>
-                @if(auth()->check() && auth()->id() === $comment->user_id)
-                    <button class="small primary"
-                            onclick='editComment(@json($comment->id), @json($comment->comment))'>
-                        تعديل
+
+                <!-- عرض التقييم -->
+                @if($comment->rating > 0)
+                    <div style="color:#f8b400; font-size:16px; margin-top:4px;">
+                        @for($i = 1; $i <= 5; $i++)
+                            @if($i <= $comment->rating)
+                                ★
+                            @else
+                                ☆
+                            @endif
+                        @endfor
+                    </div>
+                @endif
+
+                <p style="margin:6px 0 10px;">{{ $comment->comment }}</p>
+
+                <!-- عرض صورة التعليق -->
+                @if($comment->image)
+                    <div style="margin-bottom:10px;">
+                        <img src="{{ asset('comments/' . $comment->image) }}"
+                             style="width:150px; border-radius:10px; border:1px solid #ccc; display:block;">
+                    </div>
+                @endif
+
+                <!-- أزرار تعديل / حذف -->
+                <div style="margin-bottom:10px;">
+                    @if(auth()->check() && auth()->id() === $comment->user_id)
+                        <button class="small primary" onclick='editComment(@json($comment->id), @json($comment->comment))'>
+                            تعديل
+                        </button>
+                    @endif
+
+                    @if(auth()->check() && (auth()->id() === $comment->user_id || auth()->user()->role === "admin" || auth()->id() === $restaurant->owner_id))
+                        <form action="{{ route('comments.delete', $comment->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button class="small danger">حذف</button>
+                        </form>
+                    @endif
+                </div>
+
+                <!-- زر عرض الردود -->
+                <button class="small" id="toggle-btn-{{ $comment->id }}" onclick="toggleReplies({{ $comment->id }})">
+                    عرض الردود
+                </button>
+
+                <!-- زر إضافة رد -->
+                @auth
+                    <button class="toggle-reply-btn small primary" style="margin-right:5px;">
+                        إضافة رد
                     </button>
-                @endif
-                @if(auth()->check() && (auth()->id() === $comment->user_id || auth()->user()->role === 'admin' || auth()->id() === $restaurant->owner_id))
-                    <form action="{{ route('comments.delete', $comment->id) }}" method="POST" style="display:inline;">
+
+                    <!-- فورم الرد -->
+                    <form action="{{ route('comments.reply', $comment->id) }}" method="POST" class="reply-form"
+                          style="margin-top:10px; display:none; background:#f9f9f9; padding:10px; border-radius:8px;">
                         @csrf
-                        @method('DELETE')
-                        <button class="small danger">حذف</button>
+                        <textarea name="reply" placeholder="اكتب ردك…" required
+                                  style="width:100%; padding:8px; border-radius:6px; border:1px solid #ccc;"></textarea>
+
+                        <button class="toggle-reply-btn"
+                                style="margin-top:10px; background:#eee; padding:6px 10px; border-radius:6px; cursor:pointer;">
+                            إضافة رد
+                        </button>
                     </form>
-                @endif
+                @endauth
+
+                <!-- صندوق الردود -->
+                <div id="replies-{{ $comment->id }}" class="replies-box"
+                     style="display:none; margin-top:15px; padding-right:15px; border-right:2px solid #ddd;">
+                    @foreach($comment->replies as $reply)
+                    <div class="reply-item"
+                         style="background:#f7f7f7; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #e5e5e5;">
+
+                        <strong>{{ $reply->user->name }}</strong>
+                        <p style="margin:4px 0;">{{ $reply->reply }}</p>
+
+                        @if(auth()->check() && (auth()->id() === $reply->user_id || auth()->user()->role === 'admin' || auth()->id() === $restaurant->owner_id))
+                        <div style="margin-top:6px;">
+                            <button class="small primary"
+                                    onclick="editReply({{ $reply->id }}, '{{ addslashes($reply->reply) }}')">تعديل</button>
+
+                            <form action="{{ route('replies.destroy', $reply->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button class="small danger">حذف</button>
+                            </form>
+                        </div>
+                        @endif
+
+                    </div>
+                    @endforeach
+                </div>
+
             </div>
             @endforeach
+
         </div>
-        <form action="{{ route('restaurant.comments.store') }}" method="POST" class="comment-form">
-            @csrf
-            <input type="hidden" name="restaurant_id" value="{{ $restaurant->id }}">
-            <textarea name="comment" placeholder="أكتب تعليقك…" required></textarea>
-            <button class="send-btn">إرسال</button>
-        </form>
+
+<!-- زر فتح الفورم -->
+<button id="showCommentForm" class="small primary" style="margin-bottom:10px;">
+    اكتب تعليق…
+</button>
+
+<!-- فورم التعليق مخفي افتراضيًا -->
+<form id="commentForm" action="{{ route('restaurant.comments.store') }}" method="POST" enctype="multipart/form-data"
+      class="comment-form"
+      style="display:none; margin-top:15px; background:#fff; padding:15px; border-radius:10px; border:1px solid #eee;">
+    @csrf
+    <input type="hidden" name="restaurant_id" value="{{ $restaurant->id }}">
+
+    <!-- زر إلغاء -->
+    <button type="button" id="cancelComment" class="small danger" style="margin-bottom:10px;">إلغاء</button>
+
+    <!-- تقييم النجوم -->
+    <div class="rating-box" style="margin-bottom:10px; text-align:center;">
+        <span class="star" data-value="1">&#9733;</span>
+        <span class="star" data-value="2">&#9733;</span>
+        <span class="star" data-value="3">&#9733;</span>
+        <span class="star" data-value="4">&#9733;</span>
+        <span class="star" data-value="5">&#9733;</span>
+
+        <input type="hidden" name="rating" id="rating" value="0">
+    </div>
+
+    <textarea name="comment" placeholder="أكتب تعليقك…" required
+              style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;"></textarea>
+
+    <!-- رفع صورة التعليق -->
+    <label style="display:block; margin:10px 0 5px;">إضافة صورة للتعليق (اختياري):</label>
+    <input type="file" name="image" accept="image/*"
+           style="margin-bottom:10px; padding:6px; border:1px solid #ddd; border-radius:6px;">
+
+    <button class="send-btn" style="margin-top:10px;">إرسال</button>
+</form>
+
     </div>
 </div>
+
+
 
 <script>
 // التعليقات من الجديد
@@ -297,6 +423,14 @@ function removeItem(id){
     renderCart();
 }
 
+document.querySelectorAll('.toggle-reply-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const form = btn.nextElementSibling; 
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
+});
+
+
 function clearCart(){ if(confirm('هل تريد تفريغ السلة؟')){ cart=[]; sessionStorage.setItem('cart', JSON.stringify(cart)); renderCart(); } } 
 
 async function confirmOrder() {
@@ -369,6 +503,71 @@ function editComment(id, text){
         .catch(() => alert('حدث خطأ بالتعديل'));
     }
 }
+
+function editReply(id, text){
+    const newReply = prompt('تعديل ردك:', text);
+    if(newReply !== null && newReply.trim() !== ''){
+        fetch("{{ url('replies') }}/" + id, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({ reply: newReply })
+        })
+        .then(res => res.json())
+        .then(d => {
+            if(d.success) location.reload();
+            else alert(d.message || 'حدث خطأ بالتعديل');
+        })
+        .catch(() => alert('حدث خطأ بالتعديل'));
+    }
+}
+
+
+function toggleReplies(id){
+    const box = document.getElementById('replies-' + id);
+    const btn = document.getElementById('toggle-btn-' + id);
+
+    if(box.style.display === 'none'){
+        box.style.display = 'block';
+        btn.innerText = 'إخفاء الردود';
+    } else {
+        box.style.display = 'none';
+        btn.innerText = 'عرض الردود';
+    }
+}
+
+
+    const showBtn = document.getElementById('showCommentForm');
+    const cancelBtn = document.getElementById('cancelComment');
+    const form = document.getElementById('commentForm');
+
+    // عرض الفورم عند الضغط على زر "اكتب تعليق"
+    showBtn.addEventListener('click', () => {
+        form.style.display = 'block';
+        showBtn.style.display = 'none';
+    });
+
+    // إخفاء الفورم عند الضغط على زر "إلغاء"
+    cancelBtn.addEventListener('click', () => {
+        form.style.display = 'none';
+        showBtn.style.display = 'inline-block';
+    });
+
+    // التعامل مع النجوم
+    document.querySelectorAll(".rating-box .star").forEach(star => {
+        star.addEventListener("click", function() {
+            let value = this.getAttribute("data-value");
+            document.getElementById("rating").value = value;
+
+            document.querySelectorAll(".rating-box .star").forEach(s => s.style.color = "#ccc");
+
+            for (let i = 0; i < value; i++) {
+                document.querySelectorAll(".rating-box .star")[i].style.color = "#f8b400";
+            }
+        });
+    });
 
 // تحميل السلة عند فتح الصفحة
 document.addEventListener('DOMContentLoaded', renderCart);

@@ -6,7 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class RestaurantComment extends Model
 {
-    protected $fillable = ['user_id', 'restaurant_id', 'comment'];
+    protected $fillable = [
+        'restaurant_id',
+        'user_id',
+        'comment',
+        'rating',
+        'image',
+    ];
 
     public function user()
     {
@@ -23,4 +29,8 @@ class RestaurantComment extends Model
         return $this->restaurant->owner_id === $this->user_id;
     }
 
+    public function replies()
+    {
+        return $this->hasMany(CommentReply::class, 'comment_id');
+    }
 }
