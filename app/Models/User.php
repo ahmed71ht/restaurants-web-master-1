@@ -36,4 +36,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Delivery::class, 'delivery_man_id');
     }
+
+    public function followedRestaurants() {
+        return $this->belongsToMany(Restaurant::class, 'restaurant_followers');
+    }
 }

@@ -1,30 +1,24 @@
+<!-- resources/views/restaurants/search.blade.php -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أفضل 10 مطاعم للشهر</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
-        @layer utilities {
-            .card-shadow { 
-                box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
-                transition: all 0.3s ease; 
-            }
-            .card-shadow:hover { 
-                transform: translateY(-5px) scale(1.03); 
-                box-shadow: 0 15px 25px rgba(0,0,0,0.25); 
-            }
-            .btn-animate {
-                transition: all 0.3s ease;
-            }
-            .btn-animate:hover {
-                transform: scale(1.05);
-            }
-        }
-            /* From Uiverse.io by Admin12121 */ 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بحث عن مطعم</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
+    .card-shadow { 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
+        transition: all 0.3s ease; 
+    }
+    .card-shadow:hover { 
+        transform: translateY(-5px) scale(1.03); 
+        box-shadow: 0 15px 25px rgba(0,0,0,0.25); 
+    }
+
+    /* From Uiverse.io by Admin12121 */ 
     .menu {
         padding: 0.5rem;
         background-color: #fff;
@@ -100,23 +94,26 @@
             text-indent: 28px;
             width: 104%;
         }
-    </style>
+
+</style>
 </head>
 <body>
 
-<!-- App Header -->
+
+    <!-- App Header -->
 <header class="relative w-full bg-gradient-to-r from-orange-400 via-orange-500 to-yellow-400 text-white shadow-xl py-6">
     <div class="flex items-center justify-center text-3xl font-extrabold">
-        🍽️ أفضل 10 مطاعم للشهر
+        🔍 بحث عن مطعم
     </div>
 
     @role('admin')
-    <!-- زر الإعدادات -->
+    <!-- زر الإعدادات بدون خلفية -->
     <a href="{{ route('admin.dashboard') }}" class="absolute top-7 left-4 text-white text-3xl hover:text-yellow-300 transition-all btn-animate">
         ⚙️
-    </a>
+     </a>
     @endrole
 </header>
+
 
 <main class="p-6 max-w-7xl mx-auto mt-6">
             <!-- From Uiverse.io by Admin12121 --> 
@@ -251,60 +248,45 @@
                 <span class="link-title">Profile</span>
             </a>
         </div>
+    <div class="container mx-auto p-6">
 
-        <br>
+        <!-- نموذج البحث -->
+        <form action="{{ route('restaurant.search') }}" method="GET" class="flex mb-6 justify-center">
+            <input type="text" name="query" placeholder="ابحث باسم المطعم أو نوعه" 
+                value="{{ request('query') }}"
+                class="w-full md:w-1/2 p-4 rounded-l-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400">
+            <button type="submit" class="bg-orange-500 text-white px-6 rounded-r-xl hover:bg-orange-600 transition">بحث</button>
+        </form>
 
-    <!-- Restaurants Grid -->
-    <div id="restaurantsGrid" class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        @foreach($topRestaurants as $index => $restaurant)
-        @php
-            $borderColor = match($index) {
-                0 => 'border-yellow-400',
-                1 => 'border-gray-400',
-                2 => '',
-                default => 'border-white',
-            };
-        @endphp
-
-        <div class="bg-white rounded-3xl overflow-hidden card-shadow restaurant-item border-4 {{ $borderColor }}">
-            @if($restaurant->image)
-            <div class="w-full h-48 overflow-hidden rounded-t-3xl">
-                <img src="{{ asset($restaurant->image) }}" alt="صورة المطعم" class="w-full h-full object-cover">
+        <!-- نتائج البحث -->
+        @if(isset($restaurants) && $restaurants->count() > 0)
+            <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                @foreach($restaurants as $restaurant)
+                    <div class="bg-white rounded-3xl overflow-hidden card-shadow restaurant-item border-4">
+                        @if($restaurant->image)
+                        <div class="w-full h-48 overflow-hidden rounded-t-3xl">
+                            <img src="{{ asset($restaurant->image) }}" alt="صورة المطعم" class="w-full h-full object-cover">
+                        </div>
+                        @endif
+                        <div class="p-5">
+                            <h2 class="text-orange-500 font-bold text-xl mb-2 restaurant-name">{{ $restaurant->name }}</h2>
+                            <p class="text-gray-700 text-sm leading-relaxed mb-2">{{ $restaurant->description ?? 'لا يوجد وصف' }}</p>
+                            <p class="text-sm text-gray-500 mb-1">متوسط التقييم: {{ number_format($restaurant->avg_rating, 1) }} ⭐</p>
+                            <p class="text-sm text-gray-500 mb-1">عدد الطلبات: {{ $restaurant->total_orders }}</p>
+                            <p class="text-sm text-gray-500 mb-3">عدد التعليقات: {{ $restaurant->total_comments }}</p>
+                            <a href="{{ route('restaurant.show', $restaurant->id) }}" class="w-full inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl text-center btn-animate">
+                                عرض التفاصيل
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
             </div>
-            @endif
-            <div class="p-5">
-                <h2 class="text-orange-500 font-bold text-xl mb-2 restaurant-name">{{ $restaurant->name }}</h2>
-                <p class="text-gray-700 text-sm leading-relaxed mb-2">{{ $restaurant->description ?? 'لا يوجد وصف' }}</p>
-                <p class="text-sm text-gray-500 mb-1">متوسط التقييم: {{ number_format($restaurant->avg_rating, 1) }} ⭐</p>
-                <p class="text-sm text-gray-500 mb-1">عدد الطلبات: {{ $restaurant->total_orders }}</p>
-                <p class="text-sm text-gray-500 mb-3">عدد التعليقات: {{ $restaurant->total_comments }}</p>
-                <a href="{{ route('restaurant.show', $restaurant->id) }}" class="w-full inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl text-center btn-animate">
-                    عرض التفاصيل
-                </a>
-            </div>
-        </div>
-
-        @endforeach
+        @else
+            <p class="text-gray-500 mt-4 text-center">لا توجد نتائج للبحث.</p>
+        @endif
+        
     </div>
-
 </main>
-
-<script>
-const searchInput = document.getElementById('restaurantSearch');
-const restaurants = document.querySelectorAll('.restaurant-item');
-
-searchInput.addEventListener('input', function() {
-    const query = this.value.toLowerCase();
-    restaurants.forEach(item => {
-        const name = item.querySelector('.restaurant-name').innerText.toLowerCase();
-        if(name.includes(query)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
-</script>
 
 </body>
 </html>

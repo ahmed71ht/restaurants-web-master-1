@@ -94,6 +94,24 @@ body { font-family:"Tajawal",sans-serif; background:#f4f6fc; margin:0; color:#22
         <button id="openComments" class="comments-btn">التعليقات 💬</button>
     </div>
 
+        <br>
+
+
+    @if(auth()->user()->followedRestaurants->contains($restaurant->id))
+        <form action="{{ route('restaurant.unfollow', $restaurant) }}" method="POST">
+            @csrf
+            @method('DELETE')
+            <button class="btn bg-red-500 text-white px-4 py-2 rounded">إلغاء المتابعة</button>
+        </form>
+    @else
+        <form action="{{ route('restaurant.follow', $restaurant) }}" method="POST">
+            @csrf
+            <button class="btn bg-green-500 text-white px-4 py-2 rounded">متابعة</button>
+        </form>
+    @endif
+
+    <br>
+
     <a href="{{ route('restaurant.index') }}" class="btn secondary">← رجوع</a><br><br>
 
     @if($restaurant->location)

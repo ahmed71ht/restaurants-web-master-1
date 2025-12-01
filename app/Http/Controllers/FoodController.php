@@ -45,10 +45,18 @@ class FoodController extends Controller
 
         $data['restaurant_id'] = $restaurant->id;
 
-        Food::create($data);
+        // إنشاء الطبق
+        $food = Food::create($data);
 
-        return redirect()->route('restaurant.show', $restaurant->id)->with('success', 'تم إضافة الأكلة بنجاح');
+        /* 🔥 إرسال إيميل Gmail للمتابعين */
+        foreach ($restaurant->followers as $follower) {
+            $follower->notify(new \App\Notifications\NewDishEmail($food));
+        }
+
+        return redirect()->route('restaurant.show', $restaurant->id)
+                        ->with('success', 'تم إضافة الأكلة بنجاح');
     }
+
 
     public function buyStore(Request $request, Food $food)
     {

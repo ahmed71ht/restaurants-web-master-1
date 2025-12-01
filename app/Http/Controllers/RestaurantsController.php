@@ -122,5 +122,15 @@ class RestaurantsController extends Controller
         return view('restaurant.top', compact('topRestaurants'));
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $restaurants = \App\Models\Restaurant::query()
+            ->where('name', 'LIKE', "%{$query}%")
+            ->get();
+
+        return view('restaurant.search', compact('restaurants'));
+    }
 
 }

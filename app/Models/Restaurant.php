@@ -33,4 +33,8 @@ class Restaurant extends Model
     {
         return $this->hasMany(RestaurantComment::class);
     }
+
+    public function followers() {
+        return $this->belongsToMany(User::class, 'restaurant_followers');
+    }
 }
