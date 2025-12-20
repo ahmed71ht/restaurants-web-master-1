@@ -13,7 +13,6 @@ class RestaurantCommentController extends Controller
             'comment' => 'required|min:3',
             'restaurant_id' => 'required|exists:restaurants,id',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'rating' => 'required|integer|min:1|max:5',
         ]);
 
         $imageName = null;
@@ -28,7 +27,6 @@ class RestaurantCommentController extends Controller
             'restaurant_id' => $request->restaurant_id,
             'comment' => $request->comment,
             'image' => $imageName,
-            'rating' => $request->rating,
         ]);
 
         return back()->with('success', 'تم إضافة التعليق بنجاح');
@@ -39,7 +37,6 @@ class RestaurantCommentController extends Controller
         $request->validate([
             'comment' => 'required|min:3',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'rating' => 'required|integer|min:1|max:5',
         ]);
 
         $comment = RestaurantComment::findOrFail($id);
@@ -61,7 +58,6 @@ class RestaurantCommentController extends Controller
         $comment->update([
             'comment' => $request->comment,
             'image' => $imageName,
-            'rating' => $request->rating,
         ]);
 
         return response()->json(['success' => true]);

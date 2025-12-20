@@ -140,7 +140,7 @@
                 </span>
                 <span class="link-title">Home</span>
             </a>
-            <a href="{{ route('restaurant.top') }}" class="link">
+            <a href="{{ route('restaurant.following') }}" class="link">
                 <span class="link-icon">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -179,7 +179,7 @@
                     ></path>
                 </svg>
                 </span>
-                <span class="link-title">Top 10 Restaurant</span>
+                <span class="link-title">Follow</span>
             </a>
             <a href="{{ route('restaurant.search') }}" class="link">
                 <span class="link-icon">
@@ -271,9 +271,6 @@
                         <div class="p-5">
                             <h2 class="text-orange-500 font-bold text-xl mb-2 restaurant-name">{{ $restaurant->name }}</h2>
                             <p class="text-gray-700 text-sm leading-relaxed mb-2">{{ $restaurant->description ?? 'لا يوجد وصف' }}</p>
-                            <p class="text-sm text-gray-500 mb-1">متوسط التقييم: {{ number_format($restaurant->avg_rating, 1) }} ⭐</p>
-                            <p class="text-sm text-gray-500 mb-1">عدد الطلبات: {{ $restaurant->total_orders }}</p>
-                            <p class="text-sm text-gray-500 mb-3">عدد التعليقات: {{ $restaurant->total_comments }}</p>
                             <a href="{{ route('restaurant.show', $restaurant->id) }}" class="w-full inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl text-center btn-animate">
                                 عرض التفاصيل
                             </a>

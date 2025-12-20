@@ -36,7 +36,6 @@ Route::middleware('auth')->group(function () {
 
     // الصفحات الثابتة أولًا
     Route::get('/restaurants/following', [FollowController::class, 'following'])->name('restaurant.following');
-    Route::get('/restaurants/top', [RestaurantsController::class, 'topRestaurants'])->name('restaurant.top');
 
     // Follow & Unfollow
     Route::post('/restaurants/{restaurant}/follow', [FollowController::class, 'follow'])->name('restaurant.follow');

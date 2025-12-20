@@ -217,19 +217,6 @@ body { font-family:"Tajawal",sans-serif; background:#f4f6fc; margin:0; color:#22
                     @endif
                 </strong>
 
-                <!-- عرض التقييم -->
-                @if($comment->rating > 0)
-                    <div style="color:#f8b400; font-size:16px; margin-top:4px;">
-                        @for($i = 1; $i <= 5; $i++)
-                            @if($i <= $comment->rating)
-                                ★
-                            @else
-                                ☆
-                            @endif
-                        @endfor
-                    </div>
-                @endif
-
                 <p style="margin:6px 0 10px;">{{ $comment->comment }}</p>
 
                 <!-- عرض صورة التعليق -->
@@ -327,18 +314,7 @@ body { font-family:"Tajawal",sans-serif; background:#f4f6fc; margin:0; color:#22
     <input type="hidden" name="restaurant_id" value="{{ $restaurant->id }}">
 
     <!-- زر إلغاء -->
-    <button type="button" id="cancelComment" class="small danger" style="margin-bottom:10px;">إلغاء</button>
-
-    <!-- تقييم النجوم -->
-    <div class="rating-box" style="margin-bottom:10px; text-align:center;">
-        <span class="star" data-value="1">&#9733;</span>
-        <span class="star" data-value="2">&#9733;</span>
-        <span class="star" data-value="3">&#9733;</span>
-        <span class="star" data-value="4">&#9733;</span>
-        <span class="star" data-value="5">&#9733;</span>
-
-        <input type="hidden" name="rating" id="rating" value="0">
-    </div>
+    <button type="button" id="cancelComment" class="small danger" style="margin-bottom:10px;">إلغاء</button> 
 
     <textarea name="comment" placeholder="أكتب تعليقك…" required
               style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;"></textarea>
@@ -571,20 +547,6 @@ function toggleReplies(id){
     cancelBtn.addEventListener('click', () => {
         form.style.display = 'none';
         showBtn.style.display = 'inline-block';
-    });
-
-    // التعامل مع النجوم
-    document.querySelectorAll(".rating-box .star").forEach(star => {
-        star.addEventListener("click", function() {
-            let value = this.getAttribute("data-value");
-            document.getElementById("rating").value = value;
-
-            document.querySelectorAll(".rating-box .star").forEach(s => s.style.color = "#ccc");
-
-            for (let i = 0; i < value; i++) {
-                document.querySelectorAll(".rating-box .star")[i].style.color = "#f8b400";
-            }
-        });
     });
 
 // تحميل السلة عند فتح الصفحة
